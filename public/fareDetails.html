@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Fare Details • Mabros Couriers</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="styles.css">
+  
+  
+</head>
+<body style="background-color: #FFFDEB;">
+  
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #005F5F;">
+    <div class="container">
+      <a class="navbar-brand fw-semibold text-uppercase" href="index.html">MABROS COURIERS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"><span class="navbar-toggler-icon"></span></button>
+      <div id="navMain" class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Calculator</a></li>
+          <li class="nav-item" id="navFareDetails"><a class="nav-link active" href="fareDetails.html">Fare Details</a></li>
+          <li class="nav-item" id="navBooking"><a class="nav-link" href="bookingForm.html">Booking</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="vehicles.html">Vehicles</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="track.html">Track Order</a></li>
+          <li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <script>
+    // Ensure these appear only when a quote exists
+    (function(){
+      var hasQuote = ['pickup','destination','vehicleType','totalFare'].every(function(k){ return !!localStorage.getItem(k); });
+      if (!hasQuote) { window.location.href = 'index.html'; return; }
+      // reveal
+      var fd=document.getElementById('navFareDetails'); var bk=document.getElementById('navBooking');
+      if (fd) fd.style.display=''; if (bk) bk.style.display='';
+    })();
+  </script>
+
+  <!-- Header -->
+  <header class="py-5 bg-white border-bottom" style="margin-top: 80px;">
+    <div class="container">
+      <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+          <h1 class="display-6 mb-2" style="color: #005F5F;">Review your fare and route.</h1>
+          <p class="lead text-muted mb-0">Check pickup, destination, vehicle, and estimated price. Ready to go? Request your booking in one click.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container py-5">
+    <script>
+      (function(){
+        try{
+          var keys=["pickup","destination","vehicleType","totalFare"];var ok=keys.every(function(k){return !!localStorage.getItem(k);});
+          if(!ok){ window.location.href = "index.html"; }
+        }catch(e){ window.location.href = "index.html"; }
+      })();
+    </script>
+    <div class="row g-4">
+      <!-- Left column -->
+      <div class="col-lg-8">
+        <!-- Trip summary -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <h2 class="h4 mb-3" style="color: #005F5F;">Trip summary</h2>
+            <div id="fareDetails" class="row gy-2">
+              <div id="pickupInfo" class="col-12"></div>
+              <div id="destinationInfo" class="col-12"></div>
+              <div id="fareInfo" class="col-12"></div>
+            </div>
+            <h3 id="fareResult" class="h5 mt-3" style="color: #005F5F;">Fare: £0.00</h3>
+            <div class="d-flex flex-wrap gap-2 mt-3">
+              <span class="badge bg-light text-dark border"><i class="bi bi-geo-alt-fill me-1"></i>Addresses confirmed</span>
+              <span class="badge bg-light text-dark border"><i class="bi bi-truck me-1"></i>Vehicle selected</span>
+              <span class="badge bg-light text-dark border"><i class="bi bi-clock me-1"></i>Timing confirmed</span>
+            </div>
+          </div>
+        </div>
+
+        
+        <!-- Congestion Impact -->
+        <div class="card mb-4 shadow-sm" id="congestionCard" style="display: none;">
+          <div class="card-body">
+            <h2 class="h6 mb-3" style="color: #005F5F;">
+              <i class="bi bi-exclamation-triangle me-2"></i>Congestion Impact
+            </h2>
+            <div id="congestionInfo" class="text-muted">
+              <!-- Congestion information will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Map & route -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h2 class="h6 mb-0" style="color: #005F5F;">Map & route</h2>
+              <a href="index.html" class="btn btn-outline-secondary btn-sm">Adjust on Calculator</a>
+            </div>
+            <div id="fareMap" style="width:100%; height:400px; border-radius:.75rem; overflow:hidden;"></div>
+            <div class="small text-muted mt-3">
+              <i class="bi bi-info-circle me-1"></i>
+              Route visuals are indicative. Actual route may vary slightly due to live traffic and road works.
+            </div>
+          </div>
+        </div>
+
+        <!-- What's included -->
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h2 class="h6 mb-3" style="color: #005F5F;">What's included in this estimate</h2>
+            <div class="row row-cols-1 row-cols-md-3 g-3">
+              <div class="col">
+                <div class="border rounded p-3 h-100">
+                  <strong class="d-block mb-1">Vehicle & driver</strong>
+                  <span class="small text-muted">Trained driver and appropriate van size.</span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="border rounded p-3 h-100">
+                  <strong class="d-block mb-1">Direct drive</strong>
+                  <span class="small text-muted">No consolidation unless requested.</span>
+                </div>
+              </div>
+              <div class="col">
+                <div class="border rounded p-3 h-100">
+                  <strong class="d-block mb-1">POD on delivery</strong>
+                  <span class="small text-muted">Signature/photo proof of delivery.</span>
+                </div>
+              </div>
+            </div>
+            <div class="small text-muted mt-3">
+              Extras like waiting time, additional stops, or special handling are quoted on request.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column -->
+      <div class="col-lg-4">
+        <!-- Actions -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <h2 class="h6 mb-3" style="color: #005F5F;">Ready to proceed?</h2>
+            <button id="requestBtnTop" onclick="goToBookingForm()" class="btn btn-primary w-100 mb-2" style="background-color: #007D7D;" disabled>
+              <i class="bi bi-box-seam me-1"></i> Request Booking
+            </button>
+            <a href="index.html" class="btn btn-outline-secondary w-100">Back to Calculator</a>
+            <div class="small text-muted mt-2">To request booking, please read and accept the Terms & Conditions below.</div>
+          </div>
+        </div>
+
+        <!-- Terms & Conditions -->
+        <div id="termsCard" class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <h3 class="h6 mb-3" style="color: #005F5F;">Terms & Conditions (required)</h3>
+            <ul class="small text-muted mb-3" style="line-height:1.5;">
+              <li>I confirm the consignment does not include prohibited or dangerous items (e.g. firearms, explosives, illegal goods, hazardous chemicals, live animals).</li>
+              <li>Prices are based on the details provided. Changes (waiting time, extra stops, limited access, stairs/long carry) may affect the final charge.</li>
+              <li>Parking, tolls and congestion zone surcharges may be added where applicable.</li>
+              <li>Items must be suitably packaged for transport; fragile or high‑value items require prior notice and may need additional cover.</li>
+              <li>We are not liable for indirect or consequential losses. Standard limits of liability apply unless otherwise agreed in writing.</li>
+              <li>By proceeding I agree to be contacted about this booking and to our privacy practices.</li>
+            </ul>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="1" id="acceptTerms">
+              <label class="form-check-label small" for="acceptTerms">I have read and accept these Terms & Conditions</label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="card mb-4 shadow-sm">
+          <div class="card-body">
+            <h3 class="h6 mb-3" style="color: #005F5F;">Helpful notes</h3>
+            <ul class="small text-muted mb-0">
+              <li>Include loading restrictions (stairs, no lift, limited parking) in your booking notes.</li>
+              <li>Let us know if items are fragile or require protective materials.</li>
+              <li>We'll confirm any changes to price if the job details change.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- FAQ -->
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h3 class="h6 mb-3" style="color: #005F5F;">FAQs</h3>
+            <div class="accordion accordion-flush" id="faq">
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="q1">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a1">
+                    Will this be the final price?
+                  </button>
+                </h2>
+                <div id="a1" class="accordion-collapse collapse" data-bs-parent="#faq">
+                  <div class="accordion-body small text-muted">
+                    The estimate is based on distance, vehicle, and time. If the scope changes (extra stops, waiting time), we'll confirm the final price with you first.
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="q2">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a2">
+                    Can I change pickup time or vehicle?
+                  </button>
+                </h2>
+                <div id="a2" class="accordion-collapse collapse" data-bs-parent="#faq">
+                  <div class="accordion-body small text-muted">
+                    Yes. You can switch vehicle type or time window—use the Calculator to recalculate, or add notes when requesting booking.
+                  </div>
+                </div>
+              </div>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="q3">
+                  <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#a3">
+                    How do I track the job?
+                  </button>
+                </h2>
+                <div id="a3" class="accordion-collapse collapse" data-bs-parent="#faq">
+                  <div class="accordion-body small text-muted">
+                    We provide updates at pickup, en-route, and delivery. Photo/signature POD is included for your records.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA section -->
+    <section class="pt-4">
+      <div class="p-4 p-md-5 bg-white rounded shadow-sm d-flex flex-column flex-md-row align-items-center justify-content-between">
+        <div class="mb-3 mb-md-0">
+          <h3 class="h5 mb-1" style="color: #005F5F;">Looks good?</h3>
+          <p class="text-muted mb-0 small">Click "Request Booking" to confirm your slot. We'll take care of the rest.</p>
+          <p class="text-muted small mt-2 mb-0">To continue, first accept the Terms & Conditions below.</p>
+        </div>
+        <div class="d-flex gap-2">
+          <button id="requestBtnCta" onclick="goToBookingForm()" class="btn btn-primary" style="background-color: #007D7D;" disabled>Request booking</button>
+          <a href="index.html" class="btn btn-outline-secondary">Edit details</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="text-white pt-4 pb-2" style="background-color: #003F3F;">
+    <div class="container text-center text-md-start small">
+      <div class="row">
+        <!-- Company Info -->
+        <div class="col-md-4 mb-3">
+          <h6 class="text-uppercase fw-bold">Mabros Couriers</h6>
+          <p>Fast, reliable, and affordable same-day delivery service across London, UK.</p>
+          <p><i class="bi bi-geo-alt-fill me-1"></i> 15 Salisbury Square, Nottingham, NG7 2 AB</p>
+          <p><i class="bi bi-telephone-fill me-1"></i> <a href="tel:+447577593918" class="text-white text-decoration-none">+44 7577 593918</a></p>
+          <p><i class="bi bi-envelope-fill me-1"></i> <a href="mailto:admin@mabroscourier.com" class="text-white text-decoration-none">admin@mabroscourier.com</a></p>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-md-4 mb-3">
+          <h6 class="text-uppercase fw-bold">Quick Links</h6>
+          <ul class="list-unstyled">
+            <li><a href="calculator.html" class="text-white text-decoration-none">Fare Calculator</a></li>
+            <li><a href="fareDetails.html" class="text-white text-decoration-none">Fare Details</a></li>
+            <li><a href="booking.html" class="text-white text-decoration-none">Booking</a></li>
+            <li><a href="services.html" class="text-white text-decoration-none">Services</a></li>
+            <li><a href="vehicles.html" class="text-white text-decoration-none">Vehicles</a></li>
+            <li><a href="about.html" class="text-white text-decoration-none">About Us</a></li>
+          </ul>
+        </div>
+
+        <!-- Social / Contact Icons -->
+        <div class="col-md-4 mb-3 text-md-end text-center">
+          <h6 class="text-uppercase fw-bold">Connect with Us</h6>
+          <a href="https://wa.me/447577593918" target="_blank" class="text-white fs-5 me-3"><i class="bi bi-whatsapp"></i></a>
+          <a href="mailto:admin@mabroscourier.com" class="text-white fs-5 me-3"><i class="bi bi-envelope-fill"></i></a>
+          <a href="tel:+447577593918" class="text-white fs-5"><i class="bi bi-telephone-fill"></i></a>
+        </div>
+      </div>
+
+      <!-- Bottom -->
+      <div class="text-center mt-3 pt-3 border-top border-secondary">
+        &copy; 2025 Mabros Couriers. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="config.js"></script>
+  <script src="fareDetails.js"></script>
+  <script>
+    function goToBookingForm() {
+      var accept = document.getElementById('acceptTerms');
+      if (!accept || !accept.checked) {
+        alert('Please read and accept the Terms & Conditions to continue.');
+        var card = document.getElementById('termsCard');
+        if (card && card.scrollIntoView) { card.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        return;
+      }
+      window.location.href = "bookingForm.html";
+    }
+    // Enable/disable Request buttons based on acceptance
+    document.addEventListener('DOMContentLoaded', function(){
+      var accept = document.getElementById('acceptTerms');
+      var btnTop = document.getElementById('requestBtnTop');
+      var btnCta = document.getElementById('requestBtnCta');
+      function sync(){
+        var enabled = !!(accept && accept.checked);
+        if (btnTop) btnTop.disabled = !enabled;
+        if (btnCta) btnCta.disabled = !enabled;
+      }
+      if (accept) {
+        accept.addEventListener('change', sync);
+        sync();
+      }
+    });
+  </script>
+  <!-- Load Google Maps API dynamically from backend config -->
+  <script>
+    // Fetch config and load Google Maps API (uses dynamic URL from config.js)
+    fetch(window.API_BASE_URL + '/api/config')
+      .then(function(response) {
+        if (!response.ok) throw new Error('Failed to fetch config');
+        return response.json();
+      })
+      .then(function(config) {
+        // Dynamically load Google Maps API with callback
+        var script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key=' + config.googleMaps.apiKey + '&libraries=places&callback=initMap';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+      })
+      .catch(function(error) {
+        console.error('Error loading Google Maps config:', error);
+        alert('Failed to load map configuration. Please ensure the backend server is running.');
+      });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

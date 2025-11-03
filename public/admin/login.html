@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Admin Login • Mabros</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../styles.css"/>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="../config.js"></script>
+  <script>
+    const ALLOWED_EMAILS = ["admin@mabroscouriers.com"];
+    
+    // Fetch Firebase config and initialize (uses dynamic URL from config.js)
+    fetch(window.API_BASE_URL + '/api/config')
+      .then(function(response) {
+        if (!response.ok) throw new Error('Failed to fetch config');
+        return response.json();
+      })
+      .then(function(config) {
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config.firebase);
+        }
+        
+        // Set up auth state listener after Firebase is initialized
+        firebase.auth().onAuthStateChanged(function(user) {
+          if (user) {
+            const email = user.email.toLowerCase();
+            if (ALLOWED_EMAILS.includes(email)) {
+              window.location.href = "index.html";
+            }
+          }
+        });
+      })
+      .catch(function(error) {
+        console.error('Error loading Firebase config:', error);
+        alert('Failed to load application configuration. Please ensure the backend server is running.');
+      });
+  </script>
+</head>
+<body style="background-color: #FFFDEB;">
+  <div class="topbar-admin py-1" style="background-color: #94D6D6;">
+    <div class="container d-flex justify-content-between">
+      <a href="../index.html" class="small text-dark">← Back to site</a>
+      <span class="small text-dark">Admin Portal</span>
+    </div>
+  </div>
+
+  <main class="container py-4 py-md-5">
+    <div class="row justify-content-center">
+      <div class="col-md-7 col-lg-5">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h1 class="h4 mb-3" style="color: #005F5F;">Admin Login</h1>
+            <form id="loginForm" class="row g-3 mt-1">
+              <div class="col-12">
+                <label for="email" class="form-label">Email</label>
+                <input id="email" type="email" autocomplete="username" required class="form-control">
+              </div>
+              <div class="col-12">
+                <label for="password" class="form-label">Password</label>
+                <input id="password" type="password" autocomplete="current-password" required class="form-control">
+              </div>
+              <div class="col-12 d-grid">
+                <button type="submit" class="btn btn-primary" style="background-color: #007D7D;">Sign in</button>
+              </div>
+              <div id="error" class="text-danger small" style="min-height:18px;white-space:pre-wrap;"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const email = document.getElementById('email').value.trim().toLowerCase();
+      const password = document.getElementById('password').value;
+      const errorEl = document.getElementById('error');
+      errorEl.textContent = '';
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(cred => {
+          const user = cred.user;
+          if (!user || !ALLOWED_EMAILS.includes((user.email || '').toLowerCase())) {
+            firebase.auth().signOut();
+            throw new Error("You don't have admin access.");
+          }
+          window.location.href = "index.html";
+        })
+        .catch(err => errorEl.textContent = err.message || "Login failed.");
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

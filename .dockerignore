@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Environment files (NEVER include in Docker image)
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node modules
+node_modules/
+
+# Documentation (not needed in container)
+*.md
+!README.md
+
+# Frontend files (not needed in backend container)
+public/
+
+# Git
+.git/
+.gitignore
+
+# Firebase
+.firebaserc
+firebase.json
+.firebase/
+
+# Deployment documentation
+DEPLOYMENT_STEPS.md
+QUICK_DEPLOYMENT_CHECKLIST.md
+START_HERE.md
+SETUP_INSTRUCTIONS.md
+FINAL_SECURITY_AUDIT.md
+PROJECT_STRUCTURE.md
+README_DEPLOYMENT.md
+FIREBASE_DEPLOYMENT_GUIDE.md
+
+# Docker
+Dockerfile
+.dockerignore
+
+# GCloud
+.gcloudignore

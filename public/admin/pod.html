@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin • Proof of Delivery</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="../styles.css">
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+  <script src="../config.js"></script>
+  <script>
+    const ALLOWED_EMAILS = ["admin@mabroscouriers.com"];
+    document.documentElement.style.display = 'none';
+    
+    // Fetch Firebase config and initialize (uses dynamic URL from config.js)
+    fetch(window.API_BASE_URL + '/api/config')
+      .then(function(response) {
+        if (!response.ok) throw new Error('Failed to fetch config');
+        return response.json();
+      })
+      .then(function(config) {
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+          firebase.initializeApp(config.firebase);
+        }
+        
+        // Set up auth state listener after Firebase is initialized
+        firebase.auth().onAuthStateChanged(function(user){
+          const email = (user && user.email || '').toLowerCase();
+          if (!user || !ALLOWED_EMAILS.includes(email)) {
+            window.location.replace("login.html");
+          } else {
+            document.documentElement.style.display = 'block';
+          }
+        });
+      })
+      .catch(function(error) {
+        console.error('Error loading Firebase config:', error);
+        document.documentElement.style.display = 'block';
+        alert('Failed to load application configuration. Please ensure the backend server is running.');
+      });
+  </script>
+</head>
+<body style="background-color: #FFFDEB;">
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #005F5F;">
+    <div class="container">
+      <a class="navbar-brand fw-semibold" href="index.html">Mabros Admin</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"><span class="navbar-toggler-icon"></span></button>
+      <div id="navMain" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link active" href="pod.html">POD Upload</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" style="margin-top: 80px;">
+    <div class="row g-4">
+      <div class="col-12">
+        <div class="card shadow-sm">
+          <div class="card-body">
+            <h1 class="h5 mb-3" style="color:#005F5F;">Upload Proof of Delivery</h1>
+            <div class="small text-muted mb-3">Enter the Booking ID manually. No database lookup is performed.</div>
+
+            <form id="podForm" class="row g-3">
+              <div class="col-12 col-md-6">
+                <label class="form-label">Booking ID</label>
+                <input type="text" id="bookingIdInput" class="form-control" placeholder="e.g., MBR-250811-7XQ4" required>
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Customer email (optional)</label>
+                <input type="email" id="customerEmailInput" class="form-control" placeholder="user@example.com">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Delivery photo (optional)</label>
+                <input type="file" id="deliveryPhoto" accept="image/*" class="form-control">
+              </div>
+              <div class="col-12 col-md-6">
+                <label class="form-label">Signature photo (optional)</label>
+                <input type="file" id="signaturePhoto" accept="image/*" class="form-control">
+              </div>
+              <div class="col-12">
+                <label class="form-label">Note to customer (optional)</label>
+                <textarea id="podNote" rows="3" class="form-control" placeholder="e.g., Left with reception, signed by ..."></textarea>
+              </div>
+              <div class="col-12 d-flex gap-2">
+                <button type="submit" class="btn btn-primary" style="background-color:#007D7D;">Save POD</button>
+                <a href="index.html" class="btn btn-outline-secondary">Back to Dashboard</a>
+              </div>
+              <div id="podAlert" class="alert alert-info small d-none mb-0" role="alert"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    (function(){
+      var params = new URLSearchParams(location.search);
+      var bookingKey = params.get('id') || '';
+      var booking = null;
+      var db = firebase.database();
+      var storage = firebase.storage();
+      var form = document.getElementById('podForm');
+      var alertEl = document.getElementById('podAlert');
+
+      function uploadIfAny(file, path){
+        return new Promise(function(resolve){
+          if (!file) return resolve('');
+          var ref = storage.ref().child(path);
+          ref.put(file).then(function(){ return ref.getDownloadURL(); }).then(function(url){ resolve(url); }).catch(function(){ resolve(''); });
+        });
+      }
+
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        if (!booking) {/* manual mode only */}
+        alertEl.classList.remove('d-none');
+        alertEl.classList.remove('alert-success','alert-danger');
+        alertEl.classList.add('alert-info');
+        alertEl.textContent = 'Uploading and saving POD...';
+
+        var bookingCode = (document.getElementById('bookingIdInput')?.value || '').trim() || bookingKey || '';
+        if (!bookingCode) { alertEl.classList.remove('alert-info'); alertEl.classList.add('alert-danger'); alertEl.textContent = 'Booking ID is required.'; return; }
+        var delFile = document.getElementById('deliveryPhoto').files[0] || null;
+        var sigFile = document.getElementById('signaturePhoto').files[0] || null;
+        var note = (document.getElementById('podNote').value || '').trim();
+
+        var basePath = 'pod/' + bookingCode + '/';
+        Promise.all([
+          uploadIfAny(delFile, basePath + 'delivery-' + Date.now()),
+          uploadIfAny(sigFile, basePath + 'signature-' + Date.now())
+        ]).then(function(urls){
+          var deliveryUrl = urls[0] || '';
+          var signatureUrl = urls[1] || '';
+
+          var rootRef = db.ref();
+          var writePromise;
+          if (bookingKey) {
+            var updatesMap = {};
+            updatesMap['bookings/' + bookingKey + '/status'] = 'Delivered';
+            updatesMap['bookings/' + bookingKey + '/pod'] = {
+              deliveryPhotoUrl: deliveryUrl,
+              signaturePhotoUrl: signatureUrl,
+              note: note,
+              podAt: Date.now(),
+              bookingID: bookingCode,
+              customerEmail: (document.getElementById('customerEmailInput')?.value || '').trim()
+            };
+            writePromise = rootRef.update(updatesMap);
+          } else {
+            writePromise = rootRef.child('podByBookingID/' + bookingCode).set({
+              deliveryPhotoUrl: deliveryUrl,
+              signaturePhotoUrl: signatureUrl,
+              note: note,
+              podAt: Date.now(),
+              bookingID: bookingCode,
+              customerEmail: (document.getElementById('customerEmailInput')?.value || '').trim()
+            });
+          }
+
+          return writePromise.then(function(){ return { deliveryUrl: deliveryUrl, signatureUrl: signatureUrl }; });
+        }).then(function(u){
+          var links = (u.deliveryUrl ? (' Delivery photo: ' + u.deliveryUrl) : '') + (u.signatureUrl ? (' | Signature: ' + u.signatureUrl) : '');
+          alertEl.classList.remove('alert-info');
+          alertEl.classList.add('alert-success');
+          alertEl.textContent = 'POD saved.' + links;
+        }).catch(function(err){
+          console.error(err);
+          alertEl.classList.remove('alert-info');
+          alertEl.classList.add('alert-danger');
+          alertEl.textContent = 'Failed to save POD: ' + (err && err.message ? err.message : 'Unknown error');
+        });
+      });
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+

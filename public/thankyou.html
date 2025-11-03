@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Thank You • Mabros Couriers</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body style="background-color: #FFFDEB;">
+  
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-dark fixed-top" style="background-color: #005F5F;">
+    <div class="container">
+      <a class="navbar-brand fw-semibold text-uppercase" href="index.html">MABROS COURIERS</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain"><span class="navbar-toggler-icon"></span></button>
+      <div id="navMain" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Calculator</a></li>
+          <li class="nav-item"><a class="nav-link" href="fareDetails.html">Fare Details</a></li>
+          <li class="nav-item"><a class="nav-link" href="bookingForm.html">Booking</a></li>
+          <li class="nav-item"><a class="nav-link" href="services.html">Services</a></li>
+          <li class="nav-item"><a class="nav-link" href="vehicles.html">Vehicles</a></li>
+          <li class="nav-item"><a class="nav-link" href="about.html">About Us</a></li>
+          <li class="nav-item"><a class="nav-link" href="track.html">Track Order</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container" style="margin-top: 110px;">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="card shadow-sm">
+          <div class="card-body text-center p-5">
+            <div class="display-6 mb-2" style="color:#005F5F;">Thank you!</div>
+            <p class="text-muted mb-4">Your booking request has been sent. You will receive a confirmation shortly.</p>
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+              <a href="index.html#fareCalculatorForm" class="btn btn-primary" style="background-color:#007D7D;"><i class="bi bi-calculator me-1"></i> Calculate another fare</a>
+              <a href="track.html" class="btn btn-outline-secondary"><i class="bi bi-search me-1"></i> Track your order</a>
+              <a href="index.html" class="btn btn-light border"><i class="bi bi-house me-1"></i> Home</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="text-white pt-4 pb-2 mt-5" style="background-color: #003F3F;">
+    <div class="container text-center text-md-start small">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <h6 class="text-uppercase fw-bold">Mabros Couriers</h6>
+          <p>Fast, reliable, and affordable same-day delivery service across London, UK.</p>
+          <p><i class="bi bi-geo-alt-fill me-1"></i> 15 Salisbury Square, Nottingham, NG7 2 AB</p>
+          <p><i class="bi bi-telephone-fill me-1"></i> <a href="tel:+447577593918" class="text-white text-decoration-none">+44 7577 593918</a></p>
+          <p><i class="bi bi-envelope-fill me-1"></i> <a href="mailto:admin@mabroscourier.com" class="text-white text-decoration-none">admin@mabroscourier.com</a></p>
+        </div>
+        <div class="col-md-4 mb-3">
+          <h6 class="text-uppercase fw-bold">Quick Links</h6>
+          <ul class="list-unstyled">
+            <li><a href="index.html" class="text-white text-decoration-none">Fare Calculator</a></li>
+            <li><a href="fareDetails.html" class="text-white text-decoration-none">Fare Details</a></li>
+            <li><a href="bookingForm.html" class="text-white text-decoration-none">Booking</a></li>
+            <li><a href="services.html" class="text-white text-decoration-none">Services</a></li>
+            <li><a href="vehicles.html" class="text-white text-decoration-none">Vehicles</a></li>
+            <li><a href="about.html" class="text-white text-decoration-none">About Us</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4 mb-3 text-md-end text-center">
+          <h6 class="text-uppercase fw-bold">Connect with Us</h6>
+          <a href="https://wa.me/447577593918" target="_blank" class="text-white fs-5 me-3"><i class="bi bi-whatsapp"></i></a>
+          <a href="mailto:admin@mabroscourier.com" class="text-white fs-5 me-3"><i class="bi bi-envelope-fill"></i></a>
+          <a href="tel:+447577593918" class="text-white fs-5"><i class="bi bi-telephone-fill"></i></a>
+        </div>
+      </div>
+      <div class="text-center mt-3 pt-3 border-top border-secondary">&copy; 2025 Mabros Couriers. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script>
+    // Clear any previous quote/booking data so next visit starts fresh
+    document.addEventListener('DOMContentLoaded', function(){
+      var keys = [
+        'pickup','destination','vehicleType','pickupDate','pickupTime','destinationDate','destinationTime',
+        'subtotalFare','vatAmount','totalFare','distance','additionalCharge','chargeType',
+        'londonZone','congestionApplied','congestionCharge','pickupCongestion','destinationCongestion','bookingId'
+      ];
+      keys.forEach(function(k){ localStorage.removeItem(k); });
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
