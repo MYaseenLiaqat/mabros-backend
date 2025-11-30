@@ -1,51 +1,50 @@
-// Global variables
+
 var db = null;
 var tbody = document.querySelector("#bookingsTable tbody");
 
-// Show loading immediately
+
 if (tbody) {
-  tbody.innerHTML = "<tr><td colspan='15' class='text-center'>Loading configuration...</td></tr>";
+	tbody.innerHTML = "<tr><td colspan='15' class='text-center'>Loading configuration...</td></tr>";
 }
 
-// Wait for Firebase to be initialized by the HTML page
+
 function waitForFirebase() {
-  if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
-    // Firebase is ready
-    try {
-      db = firebase.database();
-      loadBookings();
-    } catch (error) {
-      console.error('Error accessing Firebase database:', error);
-      if (tbody) {
-        tbody.innerHTML = "<tr><td colspan='15' class='text-danger text-center'>Failed to access database.</td></tr>";
-      }
-    }
-  } else {
-    // Firebase not ready yet, check again in 100ms
-    setTimeout(waitForFirebase, 100);
-  }
+	if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
+
+		try {
+			db = firebase.database();
+			loadBookings();
+		} catch (error) {
+			console.error('Error accessing Firebase database:', error);
+			if (tbody) {
+				tbody.innerHTML = "<tr><td colspan='15' class='text-danger text-center'>Failed to access database.</td></tr>";
+			}
+		}
+	} else {
+
+		setTimeout(waitForFirebase, 100);
+	}
 }
 
-// Start waiting for Firebase
+
 waitForFirebase();
 
-// Simple HTML escaping to avoid breaking the table with raw text
-function escapeHtml(value){
+
+function escapeHtml(value) {
 	if (value == null) return '';
 	return String(value)
-	  .replace(/&/g, '&amp;')
-	  .replace(/</g, '&lt;')
-	  .replace(/>/g, '&gt;')
-	  .replace(/\"/g, '&quot;')
-	  .replace(/'/g, '&#39;');
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/\"/g, '&quot;')
+		.replace(/'/g, '&#39;');
 }
-
-function formatJobSpecs(raw){
+function formatJobSpecs(raw) {
 	if (!raw) return '-';
-	var parts = String(raw).split('|').map(function(p){ return p.trim(); }).filter(Boolean);
-	var lower = parts.map(function(p){ return p.toLowerCase(); });
-	function findVal(prefix){
-		var idx = lower.findIndex(function(p){ return p.indexOf(prefix) === 0; });
+	var parts = String(raw).split('|').map(function (p) { return p.trim(); }).filter(Boolean);
+	var lower = parts.map(function (p) { return p.toLowerCase(); });
+	function findVal(prefix) {
+		var idx = lower.findIndex(function (p) { return p.indexOf(prefix) === 0; });
 		if (idx === -1) return '';
 		var seg = parts[idx].split(':');
 		return seg.length > 1 ? seg.slice(1).join(':').trim() : '';
@@ -59,16 +58,16 @@ function formatJobSpecs(raw){
 	if (typeVal) html += '<div><strong>Type:</strong> ' + escapeHtml(typeVal) + '</div>';
 	if (personsVal) html += '<div><strong>Persons:</strong> ' + escapeHtml(personsVal) + '</div>';
 	if (flagsVal) {
-		var flags = flagsVal.split(',').map(function(f){ return f.trim(); }).filter(Boolean);
+		var flags = flagsVal.split(',').map(function (f) { return f.trim(); }).filter(Boolean);
 		if (flags.length) {
 			html += '<div>';
-			flags.forEach(function(f){ html += '<span class="badge bg-light text-dark border me-1 mb-1">' + escapeHtml(f) + '</span>'; });
+			flags.forEach(function (f) { html += '<span class="badge bg-light text-dark border me-1 mb-1">' + escapeHtml(f) + '</span>'; });
 			html += '</div>';
 		}
 	}
 	if (notesVal) {
 		var full = notesVal;
-		var shortTxt = full.length > 80 ? (full.slice(0,77) + '...') : full;
+		var shortTxt = full.length > 80 ? (full.slice(0, 77) + '...') : full;
 		html += '<div title="' + escapeHtml(full) + '">' + escapeHtml(shortTxt) + '</div>';
 	}
 	html += '</div>';
@@ -77,41 +76,41 @@ function formatJobSpecs(raw){
 
 // Function to load bookings from Firebase
 function loadBookings() {
-  if (!db || !tbody) return;
-  
-  // Show loading
-  tbody.innerHTML = "<tr><td colspan='15' class='text-center'>Loading bookings...</td></tr>";
+	if (!db || !tbody) return;
 
-  db.ref("bookings").on(
-    "value",
-    function (snapshot) {
-    tbody.innerHTML = "";
-    var bookings = snapshot.val();
+	// Show loading
+	tbody.innerHTML = "<tr><td colspan='15' class='text-center'>Loading bookings...</td></tr>";
 
-    if (!bookings) {
-      tbody.innerHTML = "<tr><td colspan='15' class='text-center'>No bookings found.</td></tr>";
-      return;
-    }
+	db.ref("bookings").on(
+		"value",
+		function (snapshot) {
+			tbody.innerHTML = "";
+			var bookings = snapshot.val();
 
-    Object.keys(bookings).forEach(function (key) {
-      var b = bookings[key];
-		var subtotal = b.subtotalFare || null;
-		var vat = b.vatAmount || null;
-		var total = b.fare || null;
-		// If only total exists, derive subtotal/vat (assuming 20% VAT)
-		if (!subtotal && total) {
-			var numTotal = parseFloat(total) || 0;
-			var derivedSubtotal = (numTotal / 1.2);
-			var derivedVat = numTotal - derivedSubtotal;
-			subtotal = derivedSubtotal.toFixed(2);
-			vat = derivedVat.toFixed(2);
-		}
+			if (!bookings) {
+				tbody.innerHTML = "<tr><td colspan='15' class='text-center'>No bookings found.</td></tr>";
+				return;
+			}
 
-		// Determine status (persisted) and render select
-		var currentStatus = b.status || "Pending";
+			Object.keys(bookings).forEach(function (key) {
+				var b = bookings[key];
+				var subtotal = b.subtotalFare || null;
+				var vat = b.vatAmount || null;
+				var total = b.fare || null;
+				// If only total exists, derive subtotal/vat (assuming 20% VAT)
+				if (!subtotal && total) {
+					var numTotal = parseFloat(total) || 0;
+					var derivedSubtotal = (numTotal / 1.2);
+					var derivedVat = numTotal - derivedSubtotal;
+					subtotal = derivedSubtotal.toFixed(2);
+					vat = derivedVat.toFixed(2);
+				}
 
-		var tr = document.createElement("tr");
-		tr.innerHTML = `
+				// Determine status (persisted) and render select
+				var currentStatus = b.status || "Pending";
+
+				var tr = document.createElement("tr");
+				tr.innerHTML = `
 			<td>${b.bookingID || b.bookingId || "-"}</td>
 			<td title="${b.email || ""}">${b.email || "-"}</td>
 			<td title="${b.phone || ""}">${b.phone || "-"}</td>
@@ -128,9 +127,9 @@ function loadBookings() {
 			<td class="total-col" style="text-align:right;">£${(total || subtotal ? (total || (parseFloat(subtotal) + parseFloat(vat || 0)).toFixed(2)) : "0.00")}</td>
 			<td class="status-col">
 				<select class="form-select form-select-sm status-select">
-					<option ${currentStatus==="Pending"?"selected":""}>Pending</option>
-					<option ${currentStatus==="Enroute Delivery"?"selected":""}>Enroute Delivery</option>
-					<option ${currentStatus==="Delivered"?"selected":""}>Delivered</option>
+					<option ${currentStatus === "Pending" ? "selected" : ""}>Pending</option>
+					<option ${currentStatus === "Enroute Delivery" ? "selected" : ""}>Enroute Delivery</option>
+					<option ${currentStatus === "Delivered" ? "selected" : ""}>Delivered</option>
 				</select>
 			</td>
 			<td class="actions-col">
@@ -142,37 +141,85 @@ function loadBookings() {
 				</div>
 			</td>
 		`;
-		// Attach change handler to persist status
-		var selectEl = tr.querySelector('select.status-select');
-		selectEl.addEventListener('change', function(){
-			var newStatus = this.value;
-			db.ref('bookings/'+key).update({ status: newStatus }).catch(()=>{});
-		});
-		tbody.appendChild(tr);
-    });
-  },
-  function (error) {
-    tbody.innerHTML = `<tr><td colspan="15" class="text-danger text-center">
+				// Attach change handler to persist status
+				var selectEl = tr.querySelector('select.status-select');
+				selectEl.addEventListener('change', function () {
+					var newStatus = this.value;
+					db.ref('bookings/' + key).update({ status: newStatus }).catch(() => { });
+				});
+				tbody.appendChild(tr);
+			});
+
+
+			// Apply current filter if any
+			if (typeof filterBookings === 'function') {
+				filterBookings();
+			}
+		},
+		function (error) {
+			tbody.innerHTML = `<tr><td colspan="15" class="text-danger text-center">
       Failed to load bookings: ${error?.message || "Unknown error"}
     </td></tr>`;
-  }
-  );
+		}
+	);
 }
 
 // Keep your existing rate/charge updater
 window.updateRates = function updateRates() {
-  var carRate = parseFloat(document.getElementById('carRate').value);
-  var vanRate = parseFloat(document.getElementById('vanRate').value);
-  var truckRate = parseFloat(document.getElementById('truckRate').value);
+	var carRate = parseFloat(document.getElementById('carRate').value);
+	var vanRate = parseFloat(document.getElementById('vanRate').value);
+	var truckRate = parseFloat(document.getElementById('truckRate').value);
 
-  var sameDayCharge = parseFloat(document.getElementById('sameDayCharge').value);
-  var scheduledCharge = parseFloat(document.getElementById('scheduledCharge').value);
+	var sameDayCharge = parseFloat(document.getElementById('sameDayCharge').value);
+	var scheduledCharge = parseFloat(document.getElementById('scheduledCharge').value);
 
-  var vehicleRates = { car: carRate, van: vanRate, truck: truckRate };
-  var deliveryCharges = { sameDay: sameDayCharge, scheduled: scheduledCharge };
+	var vehicleRates = { car: carRate, van: vanRate, truck: truckRate };
+	var deliveryCharges = { sameDay: sameDayCharge, scheduled: scheduledCharge };
 
-  localStorage.setItem('vehicleRates', JSON.stringify(vehicleRates));
-  localStorage.setItem('deliveryCharges', JSON.stringify(deliveryCharges));
+	localStorage.setItem('vehicleRates', JSON.stringify(vehicleRates));
+	localStorage.setItem('deliveryCharges', JSON.stringify(deliveryCharges));
 
-  alert("Vehicle rates and delivery charges updated successfully!");
+	alert("Vehicle rates and delivery charges updated successfully!");
 };
+
+// Search Filter Logic
+var searchInput = document.getElementById('searchInput');
+var searchCount = document.getElementById('searchCount');
+
+function filterBookings() {
+	if (!tbody) return;
+	var filter = searchInput ? searchInput.value.toLowerCase().trim() : "";
+	var rows = tbody.getElementsByTagName('tr');
+	var count = 0;
+	var totalRows = 0;
+
+	for (var i = 0; i < rows.length; i++) {
+		var row = rows[i];
+		// Skip if it's a loading/error message row (usually has colspan)
+		if (row.cells.length < 5) continue;
+
+		totalRows++;
+		var text = row.textContent || row.innerText;
+		// Simple text match across the whole row
+		if (text.toLowerCase().indexOf(filter) > -1) {
+			row.style.display = "";
+			count++;
+		} else {
+			row.style.display = "none";
+		}
+	}
+
+	if (searchCount) {
+		if (filter) {
+			searchCount.textContent = count + " found";
+		} else {
+			searchCount.textContent = totalRows + " total";
+		}
+	}
+}
+
+if (searchInput) {
+	searchInput.addEventListener('keyup', filterBookings);
+	// Also trigger on 'search' event (clearing the input via X button)
+	searchInput.addEventListener('search', filterBookings);
+}

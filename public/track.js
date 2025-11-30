@@ -2,7 +2,7 @@
   var db = null;
   var firebaseReady = false;
 
-  // Wait for Firebase to be initialized by firebase-init.js
+  
   function waitForFirebase() {
     if (typeof firebase !== 'undefined' && firebase.apps.length > 0) {
       try {
@@ -17,7 +17,7 @@
     }
   }
   
-  // Start waiting for Firebase
+  
   waitForFirebase();
 
   function renderStatusBadge(status){
@@ -84,7 +84,7 @@
     var bookingId = (document.getElementById('trackBookingId').value || '').trim();
     if (!bookingId) return;
 
-    // Check if Firebase is ready
+    
     if (!firebaseReady || !db) {
       showNotFound('System is still loading. Please wait a moment and try again.');
       return;
@@ -96,7 +96,7 @@
       return bookingsRef.orderByChild(child).equalTo(bookingId).once('value');
     }
 
-    // Try exact match on bookingID, then bookingId, then full scan (case-insensitive, trimmed)
+    
     findByChild('bookingID')
       .then(function(snap){
         if (snap && snap.val()) return snap.val();
@@ -108,7 +108,7 @@
           showResult(val[key]);
           return;
         }
-        // Fallback: full scan and compare loosely
+        
         return bookingsRef.once('value').then(function(all){
           var data = all.val() || {};
           var target = bookingId.toLowerCase();
@@ -124,7 +124,7 @@
         });
       })
       .catch(function(err){
-        // Permission errors or other failures
+        
         console.error('Track error:', err);
         if (err && err.code === 'PERMISSION_DENIED') {
           showNotFound('Tracking is temporarily unavailable. Please try again later.');

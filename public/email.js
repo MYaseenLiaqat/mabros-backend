@@ -139,13 +139,13 @@ function initializeEmailJS() {
     setTimeout(initializeEmailJS, 100);
     return;
   }
-  
+
   if (typeof emailjs === 'undefined') {
     console.log('Waiting for EmailJS library...');
     setTimeout(initializeEmailJS, 100);
     return;
   }
-  
+
   // Both config and library are ready
   try {
     emailjs.init(appConfig.emailjs.userId);
@@ -156,22 +156,23 @@ function initializeEmailJS() {
   }
 }
 
-// Fetch configuration from backend (uses dynamic URL from config.js)
-fetch(window.API_BASE_URL + '/api/config')
-  .then(function(response) {
+fetch(window.API_BASE_URL + '/api/config', {
+  headers: { 'X-Client-Token': window.CLIENT_TOKEN }
+})
+  .then(function (response) {
     if (!response.ok) throw new Error('Failed to fetch config');
     return response.json();
   })
-  .then(function(config) {
+  .then(function (config) {
     appConfig = config;
     configLoaded = true;
     console.log('Email.js: Config loaded successfully');
-    console.log('EmailJS config:', config.emailjs); // Debug log
-    
+
+
     // Start trying to initialize EmailJS
     initializeEmailJS();
   })
-  .catch(function(error) {
+  .catch(function (error) {
     console.error('Error loading config:', error);
     alert('Failed to load application configuration. Please ensure the backend server is running.');
   });
@@ -197,10 +198,10 @@ waitForFirebase();
 // Format vehicle name (kept as you had it)
 function formatVehicleName(value) {
   switch (value) {
-    case "smallVan":   return "Small Van";
+    case "smallVan": return "Small Van";
     case "transitVan": return "Transit Van";
-    case "lwbVan":     return "LWB Van";
-    default:           return value || "Unknown";
+    case "lwbVan": return "LWB Van";
+    default: return value || "Unknown";
   }
 }
 
@@ -216,25 +217,25 @@ function generateBookingId() {
 
 // Populate summary from localStorage (unchanged)
 window.addEventListener("DOMContentLoaded", () => {
-  const pickup      = localStorage.getItem("pickup") || "N/A";
+  const pickup = localStorage.getItem("pickup") || "N/A";
   const destination = localStorage.getItem("destination") || "N/A";
   const vehicleType = formatVehicleName(localStorage.getItem("vehicleType"));
-  const pickupDate  = localStorage.getItem("pickupDate") || "N/A";
-  const pickupTime  = localStorage.getItem("pickupTime") || "N/A";
+  const pickupDate = localStorage.getItem("pickupDate") || "N/A";
+  const pickupTime = localStorage.getItem("pickupTime") || "N/A";
   const destinationDate = localStorage.getItem("destinationDate") || "N/A";
   const destinationTime = localStorage.getItem("destinationTime") || "N/A";
   const subtotalFare = localStorage.getItem("subtotalFare") || "N/A";
   const vatAmount = localStorage.getItem("vatAmount") || "N/A";
-  const fare        = localStorage.getItem("totalFare") || "N/A";
+  const fare = localStorage.getItem("totalFare") || "N/A";
 
-  document.getElementById("pickupInfo").innerText         = `Pickup Address: ${pickup}`;
-  document.getElementById("destinationInfo").innerText    = `Destination Address: ${destination}`;
-  document.getElementById("vehicleTypeInfo").innerText    = `Vehicle Type: ${vehicleType}`;
+  document.getElementById("pickupInfo").innerText = `Pickup Address: ${pickup}`;
+  document.getElementById("destinationInfo").innerText = `Destination Address: ${destination}`;
+  document.getElementById("vehicleTypeInfo").innerText = `Vehicle Type: ${vehicleType}`;
   document.getElementById("pickupDateOnlyInfo").innerText = `Pickup Date: ${pickupDate}`;
   document.getElementById("pickupDateTimeInfo").innerText = `Pickup: ${pickupDate} at ${pickupTime}`;
   const destDT = document.getElementById("destinationDateTimeInfo");
   if (destDT) destDT.innerText = `Delivery: ${destinationDate} at ${destinationTime}`;
-  document.getElementById("fareInfo").innerHTML           = `
+  document.getElementById("fareInfo").innerHTML = `
     <div>Subtotal: £${subtotalFare}</div>
     <div>VAT (20%): £${vatAmount}</div>
     <div class="fw-bold">Total Fare: £${fare}</div>
@@ -282,31 +283,31 @@ document.getElementById("bookingForm").addEventListener("submit", function (even
   const jobSpecs = jobSpecsParts.join(' | ');
 
   // Validate email via Kickbox proxy before proceeding
-  function verifyEmail(emailAddr){
+  function verifyEmail(emailAddr) {
     return fetch(window.API_BASE_URL + '/api/verify_email?email=' + encodeURIComponent(emailAddr))
-      .then(function(res){ return res.ok ? res.json() : null; })
-      .catch(function(){ return null; });
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .catch(function () { return null; });
   }
 
   // Pull all context from localStorage (set by app.js)
-  const pickup            = localStorage.getItem("pickup") || "N/A";
-  const destination       = localStorage.getItem("destination") || "N/A";
-  const vehicleTypeRaw    = localStorage.getItem("vehicleType") || "";
-  const vehicleType       = formatVehicleName(vehicleTypeRaw);
-  const pickupDate        = localStorage.getItem("pickupDate") || "N/A";
-  const pickupTime        = localStorage.getItem("pickupTime") || "N/A";
-  const destinationDate   = localStorage.getItem("destinationDate") || "N/A";
-  const destinationTime   = localStorage.getItem("destinationTime") || "N/A";
-  const subtotalFare      = localStorage.getItem("subtotalFare") || "0";
-  const vatAmount         = localStorage.getItem("vatAmount") || "0";
-  const fare              = localStorage.getItem("totalFare") || "0";
-  const distance          = localStorage.getItem("distance") || "0";
-  const additionalCharge  = localStorage.getItem("additionalCharge") || "0";   // 10 or 5
-  const chargeType        = localStorage.getItem("chargeType") || "";          // Same-Day/Scheduled
-  const londonZone        = localStorage.getItem("londonZone") || "No";        // Yes/No
+  const pickup = localStorage.getItem("pickup") || "N/A";
+  const destination = localStorage.getItem("destination") || "N/A";
+  const vehicleTypeRaw = localStorage.getItem("vehicleType") || "";
+  const vehicleType = formatVehicleName(vehicleTypeRaw);
+  const pickupDate = localStorage.getItem("pickupDate") || "N/A";
+  const pickupTime = localStorage.getItem("pickupTime") || "N/A";
+  const destinationDate = localStorage.getItem("destinationDate") || "N/A";
+  const destinationTime = localStorage.getItem("destinationTime") || "N/A";
+  const subtotalFare = localStorage.getItem("subtotalFare") || "0";
+  const vatAmount = localStorage.getItem("vatAmount") || "0";
+  const fare = localStorage.getItem("totalFare") || "0";
+  const distance = localStorage.getItem("distance") || "0";
+  const additionalCharge = localStorage.getItem("additionalCharge") || "0";   // 10 or 5
+  const chargeType = localStorage.getItem("chargeType") || "";          // Same-Day/Scheduled
+  const londonZone = localStorage.getItem("londonZone") || "No";        // Yes/No
   const congestionApplied = localStorage.getItem("congestionApplied") || "No"; // Yes/No
-  const congestionCharge  = localStorage.getItem("congestionCharge") || "0";   // 15 or 0
-  const pickupCongestion  = localStorage.getItem("pickupCongestion") || "0";  // Pickup congestion charge
+  const congestionCharge = localStorage.getItem("congestionCharge") || "0";   // 15 or 0
+  const pickupCongestion = localStorage.getItem("pickupCongestion") || "0";  // Pickup congestion charge
   const destinationCongestion = localStorage.getItem("destinationCongestion") || "0"; // Destination congestion charge
 
   // NEW: generate & store a Booking ID
@@ -388,7 +389,7 @@ Total fare: £${fare}
   };
 
   // First: call Kickbox verification
-  verifyEmail(email).then(function(v){
+  verifyEmail(email).then(function (v) {
     var verdict = v && v.result ? String(v.result).toLowerCase() : 'unknown';
     if (verdict === 'undeliverable') {
       alert('The email appears undeliverable. Please check and try again.');
@@ -402,68 +403,68 @@ Total fare: £${fare}
       alert('Configuration not loaded yet. Please wait a moment and try again.');
       return;
     }
-    
+
     if (!firebaseReady || !db) {
       alert('Database not ready yet. Please wait a moment and try again.');
       return;
     }
-    
+
     if (!emailjsReady) {
       alert('Email service not ready yet. Please wait a moment and try again.');
       return;
     }
-    
+
     // 1) Send email to user
     emailjs
       .send(appConfig.emailjs.serviceId, appConfig.emailjs.templateId, templateParamsUser)
       .then(function () {
-      // 2) Send the same message to admin (different recipient)
-      emailjs
-        .send(appConfig.emailjs.serviceId, appConfig.emailjs.templateId, {
-          ...templateParamsUser,
-          email: "admin@mabroscouriers.com",
-          admin_copy: true,
-          // expose internal pricing knobs to admin only
-          chargeType,
-          additionalCharge,
-          job_specs: jobSpecs,
-          summary_plain: summaryPlainAdmin
+        // 2) Send the same message to admin (different recipient)
+        emailjs
+          .send(appConfig.emailjs.serviceId, appConfig.emailjs.templateId, {
+            ...templateParamsUser,
+            email: "admin@mabroscouriers.com",
+            admin_copy: true,
+            // expose internal pricing knobs to admin only
+            chargeType,
+            additionalCharge,
+            job_specs: jobSpecs,
+            summary_plain: summaryPlainAdmin
+          })
+          .catch(() => { /* ignore admin send error */ });
+
+        alert(`📩 Booking email sent! Your Booking ID is ${bookingID}`);
+
+        // Save booking to Firebase (only after passable verification), then redirect to Thank You
+        db.ref("bookings").push({
+          bookingID: bookingID,
+          email: email,
+          phone: phone,
+          pickup: pickup,
+          destination: destination,
+          pickupDate: pickupDate,
+          pickupTime: pickupTime,
+          destinationDate: destinationDate,
+          destinationTime: destinationTime,
+          vehicleType: vehicleType,
+          distance: distance,
+          subtotalFare: subtotalFare,
+          vatAmount: vatAmount,
+          fare: fare,
+          chargeType: chargeType,
+          additionalCharge: additionalCharge,
+          londonZone: londonZone,
+          congestionApplied: congestionApplied,
+          congestionCharge: congestionCharge,
+          jobSpecs: jobSpecs,
+          createdAt: Date.now(),
+          emailVerification: verdict
         })
-        .catch(() => { /* ignore admin send error */ });
-
-      alert(`📩 Booking email sent! Your Booking ID is ${bookingID}`);
-
-      // Save booking to Firebase (only after passable verification), then redirect to Thank You
-      db.ref("bookings").push({
-        bookingID: bookingID,
-        email: email,
-        phone: phone,
-        pickup: pickup,
-        destination: destination,
-        pickupDate: pickupDate,
-        pickupTime: pickupTime,
-        destinationDate: destinationDate,
-        destinationTime: destinationTime,
-        vehicleType: vehicleType,
-        distance: distance,
-        subtotalFare: subtotalFare,
-        vatAmount: vatAmount,
-        fare: fare,
-        chargeType: chargeType,
-        additionalCharge: additionalCharge,
-        londonZone: londonZone,
-        congestionApplied: congestionApplied,
-        congestionCharge: congestionCharge,
-        jobSpecs: jobSpecs,
-        createdAt: Date.now(),
-        emailVerification: verdict
-      })
-      .then(() => {
-        console.log("✅ Booking saved to Firebase");
-        // Navigate to Thank You page which clears data and offers next steps
-        window.location.href = "thankyou.html";
-      })
-      .catch((error) => console.error("❌ Failed to write to Firebase:", error));
+          .then(() => {
+            console.log("✅ Booking saved to Firebase");
+            // Navigate to Thank You page which clears data and offers next steps
+            window.location.href = "thankyou.html";
+          })
+          .catch((error) => console.error("❌ Failed to write to Firebase:", error));
       })
       .catch(function (error) {
         console.error("❌ Email error:", error);

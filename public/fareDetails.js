@@ -18,7 +18,7 @@ window.onload = function() {
   const pickupCongestion = Number(localStorage.getItem('pickupCongestion') || '0');
   const destinationCongestion = Number(localStorage.getItem('destinationCongestion') || '0');
 
-  // Display concise fare information (no London zone/minimum fare details)
+  
   document.getElementById('pickupInfo').innerHTML = `
     <strong>Pickup:</strong> ${pickup}<br>
     <small class="text-muted">Date: ${pickupDate} | Time: ${pickupTime}</small>
@@ -42,13 +42,13 @@ window.onload = function() {
     <div class="fw-bold fs-5">Total Fare: £${totalFare}</div>
   `;
 
-  // Show congestion impact if applicable (only one entry) and only if in London zone
+  
   if (londonZone === 'Yes' && congestionApplied === 'Yes' && congestionCharge > 0) {
     const congestionCard = document.getElementById('congestionCard');
     const congestionInfo = document.getElementById('congestionInfo');
     if (congestionCard && congestionInfo) {
       congestionCard.style.display = 'block';
-      // Decide which side triggered the congestion charge
+      
       let which = '';
       let whenText = '';
       if (pickupCongestion > 0 && pickupCongestion >= destinationCongestion) {
@@ -74,21 +74,21 @@ window.onload = function() {
     }
   }
 
-  // Display route map
+  
   displayRouteMap(pickup, destination);
 };
 
-// Function to display the route map between pickup and destination
+
 function displayRouteMap(pickup, destination) {
-  // Wait for Google Maps to be loaded
+  
   function tryDisplayMap() {
     if (typeof google === 'undefined' || !google.maps) {
-      // Google Maps not ready yet, try again in 100ms
+      
       setTimeout(tryDisplayMap, 100);
       return;
     }
 
-    // Google Maps is ready, create the map
+    
     const directionsService = new google.maps.DirectionsService();
     const directionsRenderer = new google.maps.DirectionsRenderer();
 
@@ -100,7 +100,7 @@ function displayRouteMap(pickup, destination) {
 
     const map = new google.maps.Map(mapElement, {
       zoom: 7,
-      center: { lat: 51.5074, lng: -0.1278 } // Default to London
+      center: { lat: 51.5074, lng: -0.1278 } 
     });
 
     directionsRenderer.setMap(map);
@@ -122,12 +122,12 @@ function displayRouteMap(pickup, destination) {
     );
   }
 
-  // Start trying to display the map
+  
   tryDisplayMap();
 }
 
-// Define initMap as a global function for Google Maps callback
+
 window.initMap = function() {
   console.log('Google Maps API loaded successfully');
-  // Map initialization is handled by displayRouteMap when needed
+  
 };

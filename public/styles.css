@@ -1,113 +1,237 @@
 /* ===== Palette & global background ===== */
-:root{
-  --nav-grad-start:#0ea5e9;   /* cyan-500 */
-  --nav-grad-end:#2563eb;     /* indigo-600 */
-  --surface:#ffffff;
-  --surface-alt:#f5f7fb;
-  --ink:#0f172a;
-  --muted:#64748b;
+:root {
+  --nav-grad-start: #0ea5e9;
+  /* cyan-500 */
+  --nav-grad-end: #2563eb;
+  /* indigo-600 */
+  --surface: #ffffff;
+  --surface-alt: #f5f7fb;
+  --ink: #0f172a;
+  --muted: #64748b;
 }
 
-html{ scroll-behavior:smooth; }
-body{
+html {
+  scroll-behavior: smooth;
+}
+
+body {
   background: linear-gradient(180deg, #eef4ff 0%, #f7f9fc 60%, #ffffff 100%);
   min-height: 100vh;
   color: var(--ink);
 }
 
 /* ===== Navbar (gradient) ===== */
-.navbar-ink{
+.navbar-ink {
   background: linear-gradient(90deg, var(--nav-grad-start), var(--nav-grad-end)) !important;
 }
-.navbar-ink .navbar-brand{ letter-spacing:.3px; }
-.navbar-ink .nav-link.active{
+
+.navbar-ink .navbar-brand {
+  letter-spacing: .3px;
+}
+
+.navbar-ink .nav-link.active {
   text-decoration: underline;
   text-underline-offset: .25rem;
 }
 
 /* ===== Cards & sections ===== */
-.card{
+.card {
   background: var(--surface);
   border-radius: 1rem;
   border: 1px solid #eef2f7;
-  box-shadow: 0 10px 24px rgba(15,23,42,.06);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .06);
 }
-.section-surface{
+
+.section-surface {
   background: var(--surface);
   border-radius: 1rem;
-  box-shadow: 0 8px 24px rgba(15,23,42,.06);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, .06);
 }
 
 /* ===== Fare / info blocks (unchanged IDs) ===== */
 #fareDetails,
-.fare-details{
-  display:flex; flex-direction:column; gap:12px;
-  margin-top:1rem; background:var(--surface-alt);
-  padding:16px; border-radius:12px;
+.fare-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 1rem;
+  background: var(--surface-alt);
+  padding: 16px;
+  border-radius: 12px;
 }
-.info-box{
-  background:#fff; padding:12px 14px; border-radius:8px;
-  box-shadow:0 2px 4px rgba(0,0,0,.06); font-size:16px;
+
+.info-box {
+  background: #fff;
+  padding: 12px 14px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .06);
+  font-size: 16px;
 }
-#fareResult{
-  text-align:center; font-size:24px; font-weight:700;
-  margin-top:16px; color:#16a34a;
+
+#fareResult {
+  text-align: center;
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 16px;
+  color: #16a34a;
 }
 
 /* ===== Vehicle image (used on fare details if any) ===== */
-.vehicle-image-container{ display:flex; justify-content:center; margin-top:1rem; }
-#vehicleImage{
-  width:200px; height:200px; object-fit:cover; border-radius:8px;
-  box-shadow:0 4px 6px rgba(0,0,0,.1);
+.vehicle-image-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+#vehicleImage {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, .1);
 }
 
 /* ===== Map containers ===== */
-.map-container{
-  width:100%; height:400px; margin-top:1rem;
-  border:1px solid #e5e7eb; border-radius:12px; overflow:hidden;
+.map-container {
+  width: 100%;
+  height: 400px;
+  margin-top: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
 }
-#fareMap{ width:100%; height:100%; }
+
+#fareMap {
+  width: 100%;
+  height: 100%;
+}
 
 /* ===== Admin — table polish (IDs/structure unchanged) ===== */
-.bookings-wrap{
-  max-height:480px; overflow:auto;
-  border:1px solid #e5e7eb; border-radius:10px; background:#fff;
+.bookings-wrap {
+  max-height: 480px;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
 }
-.table thead th{
-  position:sticky; top:0; z-index:1; background:#fff;
+
+.table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: #fff;
 }
-.table td{
-  vertical-align:top; word-break:break-word;
+
+.table td {
+  vertical-align: top;
+  word-break: break-word;
 }
 
 /* Slightly smaller to fit more (no structural change) */
-.table.table-sm td, .table.table-sm th { font-size: .85rem; }
+.table.table-sm td,
+.table.table-sm th {
+  font-size: .85rem;
+}
 
 /* sensible min-widths */
-.table th:nth-child(1), .table td:nth-child(1){ min-width: 180px; } /* Booking ID */
-.table th:nth-child(2), .table td:nth-child(2),
-.table th:nth-child(3), .table td:nth-child(3){ min-width: 200px; } /* Email / addresses */
-.table th:nth-child(4), .table td:nth-child(4),
-.table th:nth-child(5), .table td:nth-child(5),
-.table th:nth-child(6), .table td:nth-child(6),
-.table th:nth-child(7), .table td:nth-child(7){ min-width: 120px; }
-.table th:nth-child(8), .table td:nth-child(8){ min-width: 120px; }
-.table th:nth-child(9), .table td:nth-child(9){ min-width: 110px; text-align:right; }
+.table th:nth-child(1),
+.table td:nth-child(1) {
+  min-width: 180px;
+}
+
+/* Booking ID */
+.table th:nth-child(2),
+.table td:nth-child(2),
+.table th:nth-child(3),
+.table td:nth-child(3) {
+  min-width: 200px;
+}
+
+/* Email / addresses */
+.table th:nth-child(4),
+.table td:nth-child(4),
+.table th:nth-child(5),
+.table td:nth-child(5),
+.table th:nth-child(6),
+.table td:nth-child(6),
+.table th:nth-child(7),
+.table td:nth-child(7) {
+  min-width: 120px;
+}
+
+.table th:nth-child(8),
+.table td:nth-child(8) {
+  min-width: 120px;
+}
+
+.table th:nth-child(9),
+.table td:nth-child(9) {
+  min-width: 110px;
+  text-align: right;
+}
 
 /* filter match tint */
-.row-match{ background:#fbfdff; }
+.row-match {
+  background: #fbfdff;
+}
 
 /* ===== Small page title accent ===== */
-.page-title { letter-spacing:.2px; }
+.page-title {
+  letter-spacing: .2px;
+}
 
 /* ===== Top admin link bar (optional) ===== */
-.topbar-admin{
-  background:#0b1220;
-  color:#cbd5e1;
+.topbar-admin {
+  background: #0b1220;
+  color: #cbd5e1;
 }
-.topbar-admin a{
-  color:#cbd5e1; text-decoration:none;
+
+.topbar-admin a {
+  color: #cbd5e1;
+  text-decoration: none;
 }
-.topbar-admin a:hover{
-  text-decoration:underline;
+
+.topbar-admin a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Feature boxes with gradients ===== */
+.feature-box-classic {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  color: white;
+  text-align: center;
+  border-radius: 12px;
+}
+
+.feature-box-classic:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+.feature-box-classic .icon-wrap {
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+  opacity: 0.95;
+}
+
+/* Specific Gradients */
+.feature-box-highlight {
+  background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+  /* Sunset */
+}
+
+.feature-box-live {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  /* Ocean */
+}
+
+.feature-box-clear {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+  /* Emerald */
+}
+
+.feature-box-vans {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  /* Royal */
 }
